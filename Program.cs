@@ -39,19 +39,19 @@ namespace CET2007_GameStats {
                         ViewAllPlayers();
                         break;
                     case "3":
-                        Console.WriteLine("Update player stats selected.");
+                        UpdatePlayerStats();
                         break;
                     case "4":
-                        Console.WriteLine("Search by ID selected.");
+                        SearchPlayerById();
                         break;
                     case "5":
-                        Console.WriteLine("Search by username selected.");
+                        SearchPlayerByUsername();
                         break;
                     case "6":
-                        Console.WriteLine("Top scores selected.");
+                        ShowTopScores();
                         break;
                     case "7":
-                        Console.WriteLine("Most active players selected.");
+                        ShowMostActivePlayers();
                         break;
                     case "8":
                         SaveData();
@@ -111,8 +111,94 @@ namespace CET2007_GameStats {
             }
 
             foreach (Player player in players) {
-                Console.WriteLine($"ID: {player.Id} | Username: {player.Username} | Hours: {player.HoursPlayed} | High Score: {player.HighScore}");
+                DisplayPlayer(player);
             }
+        }
+
+        static void UpdatePlayerStats() {
+            Console.Write("Enter player ID to update: ");
+            int id = int.Parse(Console.ReadLine() ?? "0");
+
+            Player? player = players.Find(p => p.Id == id);
+
+            if (player == null) {
+                Console.WriteLine("Player not found.");
+                return;
+            }
+
+            Console.Write("Enter new hours played: ");
+            player.HoursPlayed = double.Parse(Console.ReadLine() ?? "0");
+
+            Console.Write("Enter new high score: ");
+            player.HighScore = int.Parse(Console.ReadLine() ?? "0");
+
+            SaveData();
+
+            Console.WriteLine("Player stats updated.");
+        }
+
+        static void SearchPlayerById() {
+            Console.Write("Enter player ID: ");
+            int id = int.Parse(Console.ReadLine() ?? "0");
+
+            Player? player = players.Find(p => p.Id == id);
+
+            if (player == null) {
+                Console.WriteLine("Player not found.");
+                return;
+            }
+
+            DisplayPlayer(player);
+        }
+
+        static void SearchPlayerByUsername() {
+            Console.Write("Enter username: ");
+            string username = Console.ReadLine() ?? "";
+
+            Player? player = players.Find(p => p.Username.Equals(username, StringComparison.OrdinalIgnoreCase));
+
+            if (player == null) {
+                Console.WriteLine("Player not found.");
+                return;
+            }
+
+            DisplayPlayer(player);
+        }
+
+        static void ShowTopScores() {
+            if (players.Count == 0) {
+                Console.WriteLine("No players found.");
+                return;
+            }
+
+            List<Player> sortedPlayers = new List<Player>(players);
+            sortedPlayers.Sort((a, b) => b.HighScore.CompareTo(a.HighScore));
+
+            Console.WriteLine("=== Top Scores ===");
+
+            foreach (Player player in sortedPlayers) {
+                DisplayPlayer(player);
+            }
+        }
+
+        static void ShowMostActivePlayers() {
+            if (players.Count == 0) {
+                Console.WriteLine("No players found.");
+                return;
+            }
+
+            List<Player> sortedPlayers = new List<Player>(players);
+            sortedPlayers.Sort((a, b) => b.HoursPlayed.CompareTo(a.HoursPlayed));
+
+            Console.WriteLine("=== Most Active Players ===");
+
+            foreach (Player player in sortedPlayers) {
+                DisplayPlayer(player);
+            }
+        }
+
+        static void DisplayPlayer(Player player) {
+            Console.WriteLine($"ID: {player.Id} | Username: {player.Username} | Hours: {player.HoursPlayed} | High Score: {player.HighScore}");
         }
 
         static void SaveData() {
