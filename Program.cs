@@ -81,17 +81,13 @@ namespace CET2007_GameStats {
         }
 
         static void AddPlayer() {
-            Console.Write("Enter player ID: ");
-            int id = int.Parse(Console.ReadLine() ?? "0");
+            int id = ReadInt("Enter player ID: ");
 
             Console.Write("Enter username: ");
             string username = Console.ReadLine() ?? "";
 
-            Console.Write("Enter hours played: ");
-            double hoursPlayed = double.Parse(Console.ReadLine() ?? "0");
-
-            Console.Write("Enter high score: ");
-            int highScore = int.Parse(Console.ReadLine() ?? "0");
+            double hoursPlayed = ReadDouble("Enter hours played: ");
+            int highScore = ReadInt("Enter high score: ");
 
             Player player = new Player {
                 Id = id,
@@ -119,8 +115,7 @@ namespace CET2007_GameStats {
         }
 
         static void UpdatePlayerStats() {
-            Console.Write("Enter player ID to update: ");
-            int id = int.Parse(Console.ReadLine() ?? "0");
+            int id = ReadInt("Enter player ID to update: ");
 
             Player? player = players.Find(p => p.Id == id);
 
@@ -130,11 +125,8 @@ namespace CET2007_GameStats {
                 return;
             }
 
-            Console.Write("Enter new hours played: ");
-            player.HoursPlayed = double.Parse(Console.ReadLine() ?? "0");
-
-            Console.Write("Enter new high score: ");
-            player.HighScore = int.Parse(Console.ReadLine() ?? "0");
+            player.HoursPlayed = ReadDouble("Enter new hours played: ");
+            player.HighScore = ReadInt("Enter new high score: ");
 
             SaveData();
             WriteLog("Updated stats for player ID: " + id);
@@ -143,8 +135,7 @@ namespace CET2007_GameStats {
         }
 
         static void SearchPlayerById() {
-            Console.Write("Enter player ID: ");
-            int id = int.Parse(Console.ReadLine() ?? "0");
+            int id = ReadInt("Enter player ID: ");
 
             Player? player = players.Find(p => p.Id == id);
 
@@ -214,6 +205,30 @@ namespace CET2007_GameStats {
             Console.WriteLine($"ID: {player.Id} | Username: {player.Username} | Hours: {player.HoursPlayed} | High Score: {player.HighScore}");
         }
 
+        static int ReadInt(string message) {
+            int number;
+
+            Console.Write(message);
+
+            while (!int.TryParse(Console.ReadLine(), out number)) {
+                Console.Write("Invalid number. Try again: ");
+            }
+
+            return number;
+        }
+
+        static double ReadDouble(string message) {
+            double number;
+
+            Console.Write(message);
+
+            while (!double.TryParse(Console.ReadLine(), out number)) {
+                Console.Write("Invalid number. Try again: ");
+            }
+
+            return number;
+        }
+
         static void SaveData() {
             string json = JsonSerializer.Serialize(players, new JsonSerializerOptions {
                 WriteIndented = true
@@ -247,4 +262,4 @@ namespace CET2007_GameStats {
             File.AppendAllText(logPath, logEntry + Environment.NewLine);
         }
     }
-}
+} 
