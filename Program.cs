@@ -1,9 +1,17 @@
-﻿using System.Collections.Generic;
+﻿using CET2007_GameStats.Models;
 using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Text.Json;
 
 namespace CET2007_GameStats {
     class Program {
+        static List<Player> players = new List<Player>();
+        static string filePath = "players.json";
+
         static void Main(string[] args) {
+            LoadData();
+
             bool running = true;
 
             while (running) {
@@ -25,10 +33,10 @@ namespace CET2007_GameStats {
 
                 switch (choice) {
                     case "1":
-                        Console.WriteLine("Add player selected.");
+                        AddPlayer();
                         break;
                     case "2":
-                        Console.WriteLine("View all players selected.");
+                        ViewAllPlayers();
                         break;
                     case "3":
                         Console.WriteLine("Update player stats selected.");
@@ -46,17 +54,20 @@ namespace CET2007_GameStats {
                         Console.WriteLine("Most active players selected.");
                         break;
                     case "8":
-                        Console.WriteLine("Save data selected.");
+                        SaveData();
+                        Console.WriteLine("Data saved.");
                         break;
                     case "9":
-                        Console.WriteLine("Load data selected.");
+                        LoadData();
+                        Console.WriteLine("Data loaded.");
                         break;
                     case "0":
+                        SaveData();
                         running = false;
-                        Console.WriteLine("Goodbye.");
+                        Console.WriteLine("Data saved. Goodbye.");
                         break;
                     default:
-                        Console.WriteLine("Invalid option. Please try again.");
+                        Console.WriteLine("Invalid option.");
                         break;
                 }
 
@@ -65,6 +76,67 @@ namespace CET2007_GameStats {
                     Console.ReadKey();
                 }
             }
+        }
+
+        static void AddPlayer() {
+            Console.Write("Enter player ID: ");
+            int id = int.Parse(Console.ReadLine() ?? "0");
+
+            Console.Write("Enter username: ");
+            string username = Console.ReadLine() ?? "";
+
+            Console.Write("Enter hours played: ");
+            double hoursPlayed = double.Parse(Console.ReadLine() ?? "0");
+
+            Console.Write("Enter high score: ");
+            int highScore = int.Parse(Console.ReadLine() ?? "0");
+
+            Player player = new Player {
+                Id = id,
+                Username = username,
+                HoursPlayed = hoursPlayed,
+                HighScore = highScore
+            };
+
+            players.Add(player);
+            SaveData();
+
+            Console.WriteLine("Player added.");
+        }
+
+        static void ViewAllPlayers() {
+            if (players.Count == 0) {
+                Console.WriteLine("No players found.");
+                return;
+            }
+
+            foreach (Player player in players) {
+                Console.WriteLine($"ID: {player.Id} | Username: {player.Username} | Hours: {player.HoursPlayed} | High Score: {player.HighScore}");
+            }
+        }
+
+        static void SaveData() {
+            string json = JsonSerializer.Serialize(players, new JsonSerializerOptions {
+                WriteIndented = true
+            });
+
+            File.WriteAllText(filePath, json);
+        }
+
+        static void LoadData() {
+            if (!File.Exists(filePath)) {
+                players = new List<Player>();
+                return;
+            }
+
+            string json = File.ReadAllText(filePath);
+
+            if (string.IsNullOrWhiteSpace(json)) {
+                players = new List<Player>();
+                return;
+            }
+
+            players = JsonSerializer.Deserialize<List<Player>>(json) ?? new List<Player>();
         }
     }
 }
