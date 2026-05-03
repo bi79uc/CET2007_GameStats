@@ -8,6 +8,7 @@ namespace CET2007_GameStats {
     class Program {
         static List<Player> players = new List<Player>();
         static string filePath = "players.json";
+        static string logPath = "log.txt";
 
         static void Main(string[] args) {
             LoadData();
@@ -68,6 +69,7 @@ namespace CET2007_GameStats {
                         break;
                     default:
                         Console.WriteLine("Invalid option.");
+                        WriteLog("Invalid menu option entered.");
                         break;
                 }
 
@@ -100,6 +102,7 @@ namespace CET2007_GameStats {
 
             players.Add(player);
             SaveData();
+            WriteLog("Added player: " + username);
 
             Console.WriteLine("Player added.");
         }
@@ -123,6 +126,7 @@ namespace CET2007_GameStats {
 
             if (player == null) {
                 Console.WriteLine("Player not found.");
+                WriteLog("Failed update attempt for player ID: " + id);
                 return;
             }
 
@@ -133,6 +137,7 @@ namespace CET2007_GameStats {
             player.HighScore = int.Parse(Console.ReadLine() ?? "0");
 
             SaveData();
+            WriteLog("Updated stats for player ID: " + id);
 
             Console.WriteLine("Player stats updated.");
         }
@@ -145,10 +150,12 @@ namespace CET2007_GameStats {
 
             if (player == null) {
                 Console.WriteLine("Player not found.");
+                WriteLog("Search by ID failed for: " + id);
                 return;
             }
 
             DisplayPlayer(player);
+            WriteLog("Searched player by ID: " + id);
         }
 
         static void SearchPlayerByUsername() {
@@ -159,10 +166,12 @@ namespace CET2007_GameStats {
 
             if (player == null) {
                 Console.WriteLine("Player not found.");
+                WriteLog("Search by username failed for: " + username);
                 return;
             }
 
             DisplayPlayer(player);
+            WriteLog("Searched player by username: " + username);
         }
 
         static void ShowTopScores() {
@@ -179,6 +188,8 @@ namespace CET2007_GameStats {
             foreach (Player player in sortedPlayers) {
                 DisplayPlayer(player);
             }
+
+            WriteLog("Displayed top scores report.");
         }
 
         static void ShowMostActivePlayers() {
@@ -195,6 +206,8 @@ namespace CET2007_GameStats {
             foreach (Player player in sortedPlayers) {
                 DisplayPlayer(player);
             }
+
+            WriteLog("Displayed most active players report.");
         }
 
         static void DisplayPlayer(Player player) {
@@ -207,11 +220,13 @@ namespace CET2007_GameStats {
             });
 
             File.WriteAllText(filePath, json);
+            WriteLog("Saved player data to JSON file.");
         }
 
         static void LoadData() {
             if (!File.Exists(filePath)) {
                 players = new List<Player>();
+                WriteLog("No JSON file found. Started with empty player list.");
                 return;
             }
 
@@ -219,10 +234,17 @@ namespace CET2007_GameStats {
 
             if (string.IsNullOrWhiteSpace(json)) {
                 players = new List<Player>();
+                WriteLog("JSON file was empty. Started with empty player list.");
                 return;
             }
 
             players = JsonSerializer.Deserialize<List<Player>>(json) ?? new List<Player>();
+            WriteLog("Loaded player data from JSON file.");
+        }
+
+        static void WriteLog(string message) {
+            string logEntry = DateTime.Now + " - " + message;
+            File.AppendAllText(logPath, logEntry + Environment.NewLine);
         }
     }
 }
